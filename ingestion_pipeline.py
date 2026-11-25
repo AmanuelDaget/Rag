@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv("Hello")
 
+#Loading Document
+
 def load_documents(doc_path = "docs"):
     print(f"Loading all text files{doc_path}")
 
@@ -17,7 +19,8 @@ def load_documents(doc_path = "docs"):
     loader = DirectoryLoader(
         path= doc_path,
         glob= "*.txt",
-        loader_cls= TextLoader
+        loader_cls= TextLoader,
+        loader_kwargs={"encoding": "utf-8"}
     )
     documents = loader.load()
 
@@ -33,12 +36,40 @@ def load_documents(doc_path = "docs"):
         print(f"Content preview: {doc.page_content[:100]}")
         print(f"Metadata: {doc.metadata}")
 
+    return documents
+
+#Chunking
+
+def split_doc(documents, chunk_size=800, chunk_overlap=0):
+    print("Spliting document into smaller chunks")
+
+    text_spliter = CharacterTextSplitter(
+        chunk_size = chunk_size,
+        chunk_overlap = chunk_overlap
+    )
+
+    chunks= text_spliter.split_text(documents)
+
+    if chunks:
+        for i, chunk in enumerate(chunks[:5]):
+            print(f"Chunk {i+1}")
+            print(f"Source metadata: {chunk.matadata['source']}")
+            print(f"Length: {len(chunk.page_content)} characters")
+            print("Content: ")
+            print(chunk.page_content)
+            print("-"*50)
+
+    return chunks
     
 def main():
     print("Hello")
 
     #Load documents
     documents = load_documents(doc_path="docs")
+
+    #Chunking
+
+    chunks = split_doc(documents)
 
 
 if __name__ == "__main__":
