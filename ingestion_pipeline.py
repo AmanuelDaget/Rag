@@ -48,12 +48,12 @@ def split_doc(documents, chunk_size=800, chunk_overlap=0):
         chunk_overlap = chunk_overlap
     )
 
-    chunks= text_spliter.split_text(documents)
+    chunks= text_spliter.split_documents(documents)
 
     if chunks:
         for i, chunk in enumerate(chunks[:5]):
             print(f"Chunk {i+1}")
-            print(f"Source metadata: {chunk.matadata['source']}")
+            print(f"Source metadata: {chunk.metadata['source']}")
             print(f"Length: {len(chunk.page_content)} characters")
             print("Content: ")
             print(chunk.page_content)
