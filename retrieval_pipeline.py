@@ -24,4 +24,4 @@ print(f"\nUser Query: {query}")
 print("-----------Context----------")
 
 for i, docs in enumerate(relevant_docs, 1):
-    print(f"Documetn {i}: {docs.page_content} \n")
+    print(f"Document {i}: \n {docs.page_content} \n")
