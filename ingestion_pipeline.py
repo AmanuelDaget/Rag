@@ -2,11 +2,13 @@ import os
 import os
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain_text_splitters import CharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+# from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
 
-load_dotenv("Hello")
+load_dotenv()
 
 # Loading Document
 
@@ -66,14 +68,17 @@ def split_doc(documents, chunk_size=800, chunk_overlap=0):
 # Vector Embedings
 
 
-def create_vector_store(chunk, persist_directory="db/chroma_db"):
+def create_vector_store(chunks, persist_directory="db/chroma_db"):
     print("Creating embeding and storing in chromaDB")
 
-    embeding_model = OpenAIEmbeddings(model="text-embeding-3-small")
+    # embeding_model = OpenAIEmbeddings(model="text-embeding-3-small")
+    embedding_model = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
     vectorstore = Chroma.from_documents(
         documents=chunks,
-        embeddings=embeding_model,
+        embedding=embedding_model,
         persist_directory=persist_directory,
         collection_metadata={"hnsw:space": "cosine"}
     )
