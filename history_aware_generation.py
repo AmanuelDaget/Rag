@@ -43,12 +43,18 @@ def ask_question(user_question):
     retriever = db.as_retriever(search_kwargs={"k": 5})
     relevant_docs = retriever.invoke(user_question)
 
-    combined_input = f"""Based on the following documents, answer this question: {user_question}
-        Documents:
-            {"\n".join([f"-{doc.page_content}" for doc in relevant_docs])}
-        Please provide a clear, helpfull answer using only the information from these documents. If you can't
-        find the answer on the documents, say 'I don't have enough information to answer this question'.
-    """
+    for i, doc in enumerate(relevant_docs, 1):
+        print(
+            f"\n[chunk {i}] {doc.metadata.get('source', '?')}\n{doc.page_content[:300]}...")
+    docs_text = "\n".join(f"- {doc.page_content}" for doc in relevant_docs)
+
+    combined_input = (
+        f"Based on the following documents, answer this question: {user_question}\n\n"
+        f"Documents:\n{docs_text}\n\n"
+        "Please provide a clear, helpful answer using only the information from these documents. "
+        "If you can't find the answer in the documents, say "
+        "'I don't have enough information to answer this question'."
+    )
 
     model = ChatGoogleGenerativeAI(
         model="gemini-3.6-flash",   # try 3.8-flash or 3.1-flash-lite if this one fails
@@ -60,9 +66,15 @@ def ask_question(user_question):
     ]
 
     result = model.invoke(message)
+    answer = result.text
+
+    chat_history.append(HumanMessage(content=user_question))
+    chat_history.append(AIMessage(content=answer))
 
     print("-----------Generated response--------")
-    print(result.content)
+    print(f"Answer: {answer}")
+
+    return answer
 
 
 def start_chat():
