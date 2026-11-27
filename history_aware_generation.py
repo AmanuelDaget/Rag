@@ -15,9 +15,14 @@ db = Chroma(
     embedding_function=embedding_model,
 )
 
-primary = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
-backup = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite")
-model = primary.with_retry(stop_after_attempt=4).with_fallbacks([backup])
+# primary = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+# backup = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite")
+# model = primary.with_retry(stop_after_attempt=4).with_fallbacks([backup])
+
+model = ChatGoogleGenerativeAI(
+    model="gemini-3.6-flash",   # try 3.8-flash or 3.1-flash-lite if this one fails
+    temperature=0,
+)
 
 chat_history = []
 
@@ -41,11 +46,11 @@ def ask_question(user_question):
         search_question = user_question
 
     retriever = db.as_retriever(search_kwargs={"k": 5})
-    relevant_docs = retriever.invoke(user_question)
+    relevant_docs = retriever.invoke(search_question)
 
-    for i, doc in enumerate(relevant_docs, 1):
-        print(
-            f"\n[chunk {i}] {doc.metadata.get('source', '?')}\n{doc.page_content[:300]}...")
+    # for i, doc in enumerate(relevant_docs, 1):
+    #     print(
+    #         f"\n[chunk {i}] {doc.metadata.get('source', '?')}\n{doc.page_content[:300]}...")
     docs_text = "\n".join(f"- {doc.page_content}" for doc in relevant_docs)
 
     combined_input = (
@@ -56,10 +61,6 @@ def ask_question(user_question):
         "'I don't have enough information to answer this question'."
     )
 
-    model = ChatGoogleGenerativeAI(
-        model="gemini-3.6-flash",   # try 3.8-flash or 3.1-flash-lite if this one fails
-        temperature=0,
-    )
     message = [
         SystemMessage(content="you are a helpful assistant."),
         HumanMessage(content=combined_input),
