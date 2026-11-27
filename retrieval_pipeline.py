@@ -3,6 +3,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 # from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
+
 from dotenv import load_dotenv
 
 # Load .env file to fetch GOOGLE_API_KEY
@@ -43,8 +44,18 @@ combined_input = f"""Based on the following documents, please ansewer these ques
 
 """
 
-model = ChatOpenAI(model="gpt-4o")
-
+# model = ChatOpenAI(model="gpt-4o")
+# model = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+# model = ChatGoogleGenerativeAI(model="gemini-3.8-flash")
+# model = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
+# model = ChatGoogleGenerativeAI(
+#     model="gemini-3.1-pro-preview",   # was "gemini-2.5-pro"
+#     temperature=0,
+# )
+model = ChatGoogleGenerativeAI(
+    model="gemini-3.6-flash",   # try 3.8-flash or 3.1-flash-lite if this one fails
+    temperature=0,
+)
 messages = [
     SystemMessage(content="you are a helpful assistant."),
     HumanMessage(content=combined_input),
@@ -53,4 +64,4 @@ messages = [
 result = model.invoke(messages)
 
 print("------Generated Response----------")
-print(result.content)
+print(result.text)
